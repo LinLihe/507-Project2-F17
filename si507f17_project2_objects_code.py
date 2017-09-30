@@ -25,7 +25,8 @@ print("\n*** *** PROJECT 2 *** ***\n")
 #########
 
 
-## You can search for a variety of different types of media with the iTunes Search API: songs, movies, ebooks and audiobooks... (and more) You'll definitely need to check out the documentation to understand/recall how the parameters of this API work: https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
+## You can search for a variety of different types of media with the iTunes Search API: songs, movies, ebooks and audiobooks...
+## (and more) You'll definitely need to check out the documentation to understand/recall how the parameters of this API work: https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
 
 ## Here, we've provided functions to get and cache data from the iTunes Search API, but looking at the information in that documentation will help you understand what is happening when the second function below gets invoked. 
 ## Make sure you understand what the function does, how it works, and how you could invoke it to get data from iTunes Search about e.g. just songs corresponding to a certain search term, just movies, or just books. 
@@ -69,28 +70,114 @@ def sample_get_cache_itunes_data(search_term,media_term="all"):
 ## [PROBLEM 1] [250 POINTS]
 print("\n***** PROBLEM 1 *****\n")
 
+"""Test if Cache passing through the data"""
+# res = sample_get_cache_itunes_data("the beatles")
+# song_sample = res['results'][0]
+# print (int(song_sample["trackTimeMillis"]/1000))
 
-## For problem 1, you should define a class Media, representing ANY piece of media you can find on iTunes search. 
+# res = sample_get_cache_itunes_data("ratatouille")
+# song_sample = res['results'][0]
+# print (len(song_sample['longDescription'].encode("utf-8").split()))
 
 
-## The Media class constructor should accept one dictionary data structure representing a piece of media from iTunes as input to the constructor.
+
+class Media(object):
+
+	def __init__(self, media):
+		self.title = media['trackName']
+		self.author = media['artistName']
+		self.itunes_URL = media['trackViewUrl']
+		self.itunes_id = media['trackId']
+
+	def __str__(self):
+		return "{} by {}".format(self.title,self.author)
+
+	def __len__(self):
+		return 0
+
+	def __repr__(self):
+		return "ITUNES MEDIA: {}".format(self.itunes_id)
+
+	def __contains__(self,title_name):
+		result = title_name in self.title
+		return result
+
+	def csv_printer(self):
+		return '"{}", {}, {}, {}, {}\n'.format(self.title,self.author,self.itunes_id,self.itunes_URL, self.__len__())
+
+## For problem 1, you should define a class Media, representing 
+## ANY piece of media you can find on iTunes search. 
+
+
+## The Media class constructor should accept one dictionary data structure 
+## representing a piece of media from iTunes as input to the constructor.
 ## It should instatiate at least the following instance variables:
 ## - title
 ## - author
 ## - itunes_URL
-## - itunes_id (e.g. the value of the track ID, whatever the track is in the data... a movie, a song, etc)
+## - itunes_id (e.g. the value of the track ID, whatever the track is in the data... a movie, 
+## a song, etc)
 
 ## The Media class should also have the following methods:
 ## - a special string method, that returns a string of the form 'TITLE by AUTHOR'
-## - a special representation method, which returns "ITUNES MEDIA: <itunes id>" with the iTunes id number for the piece of media (e.g. the track) only in place of "<itunes id>"
-## - a special len method, which, for the Media class, returns 0 no matter what. (The length of an audiobook might mean something different from the length of a song, depending on how you want to define them!)
-## - a special contains method (for the in operator) which takes one additional input, as all contains methods must, which should always be a string, and checks to see if the string input to this contains method is INSIDE the string representing the title of this piece of media (the title instance variable)
+## - a special representation method, which returns "ITUNES MEDIA: <itunes id>" with
+## the iTunes id number for the piece of media (e.g. the track) only in place of "<itunes id>"
+## - a special len method, which, for the Media class, returns 0 no matter what. 
+## (The length of an audiobook might mean something different from 
+## the length of a song, depending on how you want to define them!)
+## - a special contains method (for the in operator) which takes one additional input,
+## as all contains methods must, which should always be a string, 
+## and checks to see if the string input to this contains method is INSIDE the string 
+## representing the title of this piece of media (the title instance variable)
 
 
 
 ## [PROBLEM 2] [400 POINTS]
-print("\n***** PROBLEM 2 *****\n")
+print ("\n***** PROBLEM 2 *****\n")
 ## In 2 parts.
+
+class Song(Media):
+
+	def __init__(self,song):
+		super().__init__(song)			
+		self.album = song['collectionName']
+		self.track_number = song['trackNumber']
+		self.genre = song['primaryGenreName']
+		self.seconds = song["trackTimeMillis"]
+
+	def __len__(self):
+		return int(self.seconds/1000)
+
+
+class Movie(Media):	
+
+	def __init__(self,movie):
+		super(Movie,self).__init__(movie)	
+		self.rating = movie["contentAdvisoryRating"]
+		self.genre = movie['primaryGenreName']
+		if 'trackTimeMillis' in movie.keys():
+			self.minutes = movie["trackTimeMillis"]
+		else:
+			self.minutes = 0
+		if 'longDescription' in movie.keys():	
+			if movie['longDescription']:
+				self.description = movie['longDescription'].encode('utf-8')
+			else:
+				self.description = None
+		else:
+			self.description = None
+
+	def __len__(self):
+		return int(self.minutes/60000)
+
+	def title_words_num(self):
+		if self.description != None:
+			return len(self.description.split())
+		else:
+			return 0
+
+
+
 
 ## Now, you'll define 2 more different classes, each of which *inherit from* class Media:
 ## class Song
@@ -126,7 +213,7 @@ print("\n***** PROBLEM 2 *****\n")
 
 
 ## [PROBLEM 3] [150 POINTS]
-print("\n***** PROBLEM 3 *****\n")
+print ("\n***** PROBLEM 3 *****\n")
 
 ## In this problem, you'll write some code to use the definitions you've just written.
 
@@ -140,6 +227,23 @@ song_samples = sample_get_cache_itunes_data("love","music")["results"]
 
 movie_samples = sample_get_cache_itunes_data("love","movie")["results"]
 
+media_list = []
+for i in media_samples:
+	media_list.append(Media(i))
+
+song_list = []
+for i in song_samples:
+	song_list.append(Song(i))
+
+movie_list = []
+for i in movie_samples:
+	movie_list.append(Movie(i))
+
+
+
+# res = movie_samples
+# song_sample = res[0]
+# print (song_sample)
 
 ## You may want to do some investigation on these variables to make sure you understand correctly what type of value they hold, what's in each one!
 
@@ -155,7 +259,29 @@ movie_samples = sample_get_cache_itunes_data("love","movie")["results"]
 
 
 ## [PROBLEM 4] [200 POINTS]
-print("\n***** PROBLEM 4 *****\n")
+print ("\n***** PROBLEM 4 *****\n")
+
+# print (media_list[0].csv_printer())
+
+with open("media.csv","w") as media_f:
+	media_f.write('"title", artist, id, url, length\n')
+	for i in range (len(media_list)):
+		cont_str = media_list[i].csv_printer()
+		media_f.write(cont_str)
+
+with open("songs.csv","w") as songs_f:
+	songs_f.write('"title", artist, id, url, length\n')
+	for i in range (len(song_list)):
+		cont_str = song_list[i].csv_printer()
+		songs_f.write(cont_str)
+
+with open("movies.csv","w") as movies_f:
+	movies_f.write('"title", artist, id, url, length\n')
+	for i in range (len(movie_list)):
+		cont_str = movie_list[i].csv_printer()
+		movies_f.write(cont_str)
+
+
 
 ## Finally, write 3 CSV files:
 # - movies.csv

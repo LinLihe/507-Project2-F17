@@ -20,7 +20,7 @@ You should follow the instructions inside `si507f17_project2_objects_code.py` to
 
 To test whether you have succeeded at completing these problems, you can run the test file: e.g. `python si507f17_project2_objects_tests.py`, and view the test output. 
 
-(**DO NOT** change the names of the code files! That's ery important for grading and for testing.)
+(**DO NOT** change the names of the code files! That's very important for grading and for testing.)
 
 As you make changes, you should make commits to your Git repository, and push them to your cloned GitHub repository.
 
