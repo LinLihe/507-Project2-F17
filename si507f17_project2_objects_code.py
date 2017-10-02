@@ -264,19 +264,19 @@ print ("\n***** PROBLEM 4 *****\n")
 # print (media_list[0].csv_printer())
 
 with open("media.csv","w") as media_f:
-	media_f.write('"title", artist, id, url, length\n')
+	media_f.write('"title",artist,id,url,length\n')
 	for i in range (len(media_list)):
 		cont_str = media_list[i].csv_printer()
 		media_f.write(cont_str)
 
 with open("songs.csv","w") as songs_f:
-	songs_f.write('"title", artist, id, url, length\n')
+	songs_f.write('"title",artist,id,url,length\n')
 	for i in range (len(song_list)):
 		cont_str = song_list[i].csv_printer()
 		songs_f.write(cont_str)
 
 with open("movies.csv","w") as movies_f:
-	movies_f.write('"title", artist, id, url, length\n')
+	movies_f.write('"title",artist,id,url,length\n')
 	for i in range (len(movie_list)):
 		cont_str = movie_list[i].csv_printer()
 		movies_f.write(cont_str)
